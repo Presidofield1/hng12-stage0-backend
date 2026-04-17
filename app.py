@@ -82,18 +82,15 @@ app = Flask(__name__)
 CORS(app)
 
 # -- Configuration --
-"""app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///profiles.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS']= False
-db = SQLAlchemy(app)"""
 database_url = os.getenv("DATABASE_URL")
 
 if database_url:
-    # Fix for SQLAlchemy 1.4+ which requires 'postgresql://' not 'postgres://'
+    # This replaces 'postgres://' with 'postgresql://' for SQLAlchemy compatibility
     if database_url.startswith("postgres://"):
         database_url = database_url.replace("postgres://", "postgresql://", 1)
     app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 else:
-    # Use local SQLite for your MacBook
+    # Local SQLite for development
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///profiles.db'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
