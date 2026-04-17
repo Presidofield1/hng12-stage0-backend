@@ -82,8 +82,21 @@ app = Flask(__name__)
 CORS(app)
 
 # -- Configuration --
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///profiles.db'
+"""app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///profiles.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS']= False
+db = SQLAlchemy(app)"""
+database_url = os.getenv("DATABASE_URL")
+
+if database_url:
+    # Fix for SQLAlchemy 1.4+ which requires 'postgresql://' not 'postgres://'
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+else:
+    # Use local SQLite for your MacBook
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///profiles.db'
+
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
@@ -288,4 +301,5 @@ def delete_profile(id):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001)
+    port = int(os.environ.get("PORT", 5001))
+    app.run(host='0.0.0.0', port=port)
